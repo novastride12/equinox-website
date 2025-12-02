@@ -1,16 +1,16 @@
 [
   {
     "id": "president",
-    "name": "Arya N.",
-    "role": "President",
+    "name": "Varun Rathod",
+    "role": "co-President",
     "bio": "Leads the club and coordinates projects, workshops and collaborations.",
     "photo": "/images/team/president.jpg",
     "tags": ["Orbital Dynamics", "Mission Design"]
   },
   {
-    "id": "vice-president",
-    "name": "Second Person",
-    "role": "Vice President",
+    "id": "president",
+    "name": "Dibya Bhalla",
+    "role": "co-President",
     "bio": "Drives outreach and manages event logistics.",
     "photo": "/images/team/vice-president.jpg",
     "tags": ["Outreach", "Systems"]
