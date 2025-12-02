@@ -9,7 +9,7 @@ const About = () => {
       />
       <div className="space-y-4 text-sm text-slate-300">
         <p>
-          Equinox is the space technology club of our university. We bring
+          Equinox is the space technology club of PES university. We bring
           together students interested in rocketry, space systems, astronomy and
           engineering to learn by building and doing.
         </p>
