@@ -29,11 +29,11 @@ const Contact = () => {
           </p>
           <p>
             <span className="font-semibold text-slate-200">Instagram:</span>{" "}
-            @equinox_space_club
+            @equinox.pesecc
           </p>
           <p>
             <span className="font-semibold text-slate-200">Location:</span>{" "}
-            Your University, Main Campus
+            PES University, EC Campus
           </p>
         </div>
       </div>

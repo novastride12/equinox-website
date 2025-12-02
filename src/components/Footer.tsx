@@ -4,7 +4,7 @@ const Footer = () => {
       <div className="max-w-6xl mx-auto px-4 py-6 text-sm text-slate-400 flex flex-col sm:flex-row gap-2 justify-between">
         <span>© {new Date().getFullYear()} Equinox Space Technology Club</span>
         <span className="text-xs">
-          Hosted on GitHub Pages • Built with React & Tailwind
+          Hosted on GitHub • Built from a pale blue dot
         </span>
       </div>
     </footer>
