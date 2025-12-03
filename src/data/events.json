@@ -2,7 +2,7 @@
   {
     "id": "orbital-meetup-1",
     "title": "Introduction to Orbital Mechanics",
-    "date": "2025-12-05",
+    "date": "2026-02-05",
     "time": "17:00–18:30",
     "venue": "Seminar Hall 3, Main Block",
     "poster": "/images/events/orbital-meetup-1.jpg",
@@ -12,9 +12,9 @@
   {
     "id": "rocket-design-workshop",
     "title": "Model Rocket Design Workshop",
-    "date": "2025-12-12",
+    "date": "2026-02-14",
     "time": "10:00–13:00",
-    "venue": "Aerospace Lab",
+    "venue": "Seminar Hall 1, Main Block",
     "poster": "/images/events/rocket-design-workshop.jpg",
     "description": "Hands-on workshop to design and simulate model rockets. Includes a demo launch.",
     "registerUrl": "https://forms.gle/another-form-id"
