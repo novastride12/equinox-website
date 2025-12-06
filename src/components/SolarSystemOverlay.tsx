@@ -39,14 +39,13 @@ const planetMeta: PlanetMeta[] = [
   },
 ];
 
-// Base planet definitions (world space)
 const PLANETS = planetMeta.map((meta, i) => ({
   baseOrbit: 170 + i * 90,
   size: 16 + (i % 2) * 5,
-  speedDegPerSec: 18 + i * 7, // degrees/sec
-  baseAngleDeg: 45 + i * 63,
+  speedDegPerSec: 18 + i * 7,
+  baseAngleDeg: 40 + i * 70,
   wobbleAmp: 10 + i * 4,
-  wobbleFreq: 0.25 + i * 0.1,
+  wobbleFreq: 0.25 + i * 0.12,
   color: ["#38bdf8", "#e879f9", "#a855f7", "#facc15", "#f97316"][i],
   meta,
 }));
@@ -58,27 +57,26 @@ const SolarSystemOverlay = ({ open, onClose }: SolarSystemOverlayProps) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(0);
   const [zoom, setZoom] = useState(1);
-  const [camera, setCamera] = useState({ x: 0, y: 0 });
+  const [viewRotation, setViewRotation] = useState(0); // like rotating globe
 
-  // Refs for animation loop
+  // refs for animation loop
   const hoveredIndexRef = useRef<number | null>(null);
   const zoomRef = useRef(1);
-  const cameraRef = useRef({ x: 0, y: 0 });
+  const viewRotationRef = useRef(0);
   const planetAnglesRef = useRef<number[]>(
     PLANETS.map((p) => (p.baseAngleDeg * Math.PI) / 180)
   );
   const planetPositionsRef = useRef<{ x: number; y: number; r: number }[]>([]);
   const lastTimeRef = useRef<number | null>(null);
 
-  // drag state
+  // drag state (to rotate view)
   const draggingRef = useRef(false);
-  const dragStartRef = useRef({ x: 0, y: 0 });
-  const camStartRef = useRef({ x: 0, y: 0 });
+  const dragStartXRef = useRef(0);
+  const viewRotationStartRef = useRef(0);
 
-  // keep refs in sync with React state
   hoveredIndexRef.current = hoveredIndex;
   zoomRef.current = zoom;
-  cameraRef.current = camera;
+  viewRotationRef.current = viewRotation;
 
   useEffect(() => {
     if (!open) return;
@@ -91,32 +89,21 @@ const SolarSystemOverlay = ({ open, onClose }: SolarSystemOverlayProps) => {
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
-    const widthRef = { current: width };
-    const heightRef = { current: height };
-
     const resize = () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
-      widthRef.current = width;
-      heightRef.current = height;
     };
-
     window.addEventListener("resize", resize);
 
-    // World-space starfield for infinite feel
-    type Star = { x: number; y: number; z: number; s: number };
+    // screen-space stars (constant size regardless of zoom)
+    type Star = { x: number; y: number; tw: number };
     const stars: Star[] = [];
-    const STAR_COUNT = 1200; // denser
-    const STAR_RADIUS = 4000; // world units radius
-
+    const STAR_COUNT = 900;
     for (let i = 0; i < STAR_COUNT; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const r = Math.random() * STAR_RADIUS;
       stars.push({
-        x: Math.cos(angle) * r,
-        y: Math.sin(angle) * r,
-        z: Math.random(), // depth 0..1
-        s: Math.random() * 0.8 + 0.2,
+        x: Math.random() * width,
+        y: Math.random() * height,
+        tw: Math.random() * Math.PI * 2,
       });
     }
 
@@ -137,59 +124,38 @@ const SolarSystemOverlay = ({ open, onClose }: SolarSystemOverlayProps) => {
       lastTimeRef.current = time;
 
       const zoomLevel = zoomRef.current;
-      const cam = cameraRef.current;
+      const viewRot = viewRotationRef.current;
 
-      const worldToScreen = (wx: number, wy: number) => {
-        const sx = width / 2 + (wx - cam.x) * zoomLevel;
-        const sy = height / 2 + (wy - cam.y) * zoomLevel;
-        return { sx, sy };
-      };
+      const centerX = width / 2;
+      const centerY = height / 2;
 
       // clear
       ctx.fillStyle = "#020617";
       ctx.fillRect(0, 0, width, height);
 
-      // ---- STARFIELD ----
-      const starDriftSpeed = 5; // world units per second (slow)
+      // ---- STARS: dense, slow, constant size ----
       for (const star of stars) {
-        // very slow motion to feel infinite, not hyperspace
-        star.y += starDriftSpeed * dt * (0.2 + star.z * 0.6);
-        if (star.y > STAR_RADIUS) star.y = -STAR_RADIUS;
-
-        const { sx, sy } = worldToScreen(star.x, star.y);
-        const size = star.s * zoomLevel * (0.3 + star.z * 0.7);
-
-        if (
-          sx < -50 ||
-          sy < -50 ||
-          sx > width + 50 ||
-          sy > height + 50
-        ) {
-          continue;
-        }
-
-        const alpha = 0.2 + (1 - star.z) * 0.6;
+        star.tw += dt * 0.3; // twinkling phase
+        const alpha = 0.3 + 0.4 * Math.abs(Math.sin(star.tw));
         ctx.globalAlpha = alpha;
         ctx.beginPath();
-        ctx.arc(sx, sy, size, 0, Math.PI * 2);
+        ctx.arc(star.x, star.y, 1.2, 0, Math.PI * 2);
         ctx.fillStyle = "#e5e7eb";
         ctx.fill();
       }
       ctx.globalAlpha = 1;
 
-      // ---- EQUINOX STAR ----
+      // ---- EQUINOX STAR (center fixed) ----
       core.pulse += dt * 1.5;
       const dynamicRadius =
         core.baseRadius * zoomLevel + Math.sin(core.pulse) * 10 * zoomLevel;
 
-      const coreScreen = worldToScreen(0, 0);
-
       const glow = ctx.createRadialGradient(
-        coreScreen.sx,
-        coreScreen.sy,
+        centerX,
+        centerY,
         0,
-        coreScreen.sx,
-        coreScreen.sy,
+        centerX,
+        centerY,
         dynamicRadius * 2.8
       );
       glow.addColorStop(0, "rgba(56,189,248,0.85)");
@@ -197,15 +163,15 @@ const SolarSystemOverlay = ({ open, onClose }: SolarSystemOverlayProps) => {
       glow.addColorStop(1, "rgba(15,23,42,0)");
       ctx.fillStyle = glow;
       ctx.beginPath();
-      ctx.arc(coreScreen.sx, coreScreen.sy, dynamicRadius * 2.6, 0, Math.PI * 2);
+      ctx.arc(centerX, centerY, dynamicRadius * 2.6, 0, Math.PI * 2);
       ctx.fill();
 
       const coreGrad = ctx.createRadialGradient(
-        coreScreen.sx,
-        coreScreen.sy,
+        centerX,
+        centerY,
         0,
-        coreScreen.sx,
-        coreScreen.sy,
+        centerX,
+        centerY,
         dynamicRadius
       );
       coreGrad.addColorStop(0, "#e0f2fe");
@@ -213,31 +179,44 @@ const SolarSystemOverlay = ({ open, onClose }: SolarSystemOverlayProps) => {
       coreGrad.addColorStop(1, "#0ea5e9");
       ctx.fillStyle = coreGrad;
       ctx.beginPath();
-      ctx.arc(coreScreen.sx, coreScreen.sy, dynamicRadius, 0, Math.PI * 2);
+      ctx.arc(centerX, centerY, dynamicRadius, 0, Math.PI * 2);
       ctx.fill();
 
-      // scalable core text
+      // text scales with zoom
       const fontSize = Math.max(10, Math.min(32, 18 * zoomLevel));
       ctx.font = `bold ${fontSize}px system-ui, -apple-system, Inter, sans-serif`;
       ctx.fillStyle = "#020617";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText("EQUINOX", coreScreen.sx, coreScreen.sy);
+      ctx.fillText("EQUINOX", centerX, centerY);
 
-      // ---- PLANETS ----
+      // ---- UPDATE PLANET ANGLES (freeze only hovered) ----
       const angles = planetAnglesRef.current.slice();
       PLANETS.forEach((p, idx) => {
-        if (hoveredIndexRef.current !== idx) {
-          const inc = ((p.speedDegPerSec * dt) * Math.PI) / 180;
-          angles[idx] += inc;
-        }
+        if (hoveredIndexRef.current === idx) return;
+        const inc = ((p.speedDegPerSec * dt) * Math.PI) / 180;
+        angles[idx] += inc;
       });
       planetAnglesRef.current = angles;
 
-      const positions: { x: number; y: number; r: number }[] = [];
+      const backPlanets: {
+        screenX: number;
+        screenY: number;
+        radius: number;
+        idx: number;
+      }[] = [];
+      const frontPlanets: {
+        screenX: number;
+        screenY: number;
+        radius: number;
+        idx: number;
+      }[] = [];
+
+      // precompute positions + depth
+      const positionsForHit: { x: number; y: number; r: number }[] = [];
 
       PLANETS.forEach((p, idx) => {
-        const angle = planetAnglesRef.current[idx];
+        const rawAngle = planetAnglesRef.current[idx] + viewRot; // rotate view
         const isHovered = hoveredIndexRef.current === idx;
         const isSelected = selectedIndex === idx;
 
@@ -245,12 +224,12 @@ const SolarSystemOverlay = ({ open, onClose }: SolarSystemOverlayProps) => {
           Math.sin(time * 0.001 * p.wobbleFreq + idx) * p.wobbleAmp;
         const orbit = (p.baseOrbit + wobble) * 1; // world units
 
-        // draw orbit ellipse around world origin
+        // orbit path in screen space (ellipse)
         const orbitScreenRadius = orbit * zoomLevel;
         ctx.beginPath();
         ctx.ellipse(
-          coreScreen.sx,
-          coreScreen.sy,
+          centerX,
+          centerY,
           orbitScreenRadius,
           orbitScreenRadius * 0.35,
           0,
@@ -264,36 +243,47 @@ const SolarSystemOverlay = ({ open, onClose }: SolarSystemOverlayProps) => {
         ctx.lineWidth = isSelected ? 1.8 : 1;
         ctx.stroke();
 
-        // pseudo-3D position in world space
-        const x3 = Math.cos(angle) * orbit;
-        const z3 = Math.sin(angle) * orbit;
-        const y3 = Math.sin(angle) * orbit * Math.sin(orbitTilt);
+        // pseudo-3D world position
+        const x3 = Math.cos(rawAngle) * orbit;
+        const z3 = Math.sin(rawAngle) * orbit;
+        const y3 = Math.sin(rawAngle) * orbit * Math.sin(orbitTilt);
 
-        const depth = (z3 / orbit + 1) / 2; // 0 back → 1 front
-        const scaleDepth = 0.65 + depth * 0.7;
+        const depth = (z3 / orbit + 1) / 2; // 0 back -> 1 front
+        const depthScale = 0.65 + depth * 0.7;
         const breathing =
           1 + Math.sin(time * 0.0015 + idx * 2.7) * 0.05;
 
-        const baseRadius = p.size * scaleDepth * breathing;
+        const baseRadius = p.size * depthScale * breathing;
         const radius = baseRadius * zoomLevel + (isHovered ? 3 : 0);
 
-        const worldX = x3;
-        const worldY = y3 * 0.7;
-        const { sx, sy } = worldToScreen(worldX, worldY);
+        const screenX = centerX + x3 * zoomLevel;
+        const screenY = centerY + y3 * 0.7 * zoomLevel;
 
-        // atmospheric glow
+        positionsForHit.push({ x: screenX, y: screenY, r: radius });
+
+        const bucket = z3 < 0 ? backPlanets : frontPlanets;
+        bucket.push({ screenX, screenY, radius, idx });
+      });
+
+      planetPositionsRef.current = positionsForHit;
+
+      // ---- DRAW BACK PLANETS (behind the sun) ----
+      backPlanets.forEach(({ screenX, screenY, radius, idx }) => {
+        const p = PLANETS[idx];
+        const isHovered = hoveredIndexRef.current === idx;
+
+        // glow
         ctx.beginPath();
-        ctx.arc(sx, sy, radius + 6, 0, Math.PI * 2);
+        ctx.arc(screenX, screenY, radius + 6, 0, Math.PI * 2);
         ctx.fillStyle = p.color + "33";
         ctx.fill();
 
-        // planet shading with terminator
         const shade = ctx.createRadialGradient(
-          sx - radius / 3,
-          sy - radius / 3,
+          screenX - radius / 3,
+          screenY - radius / 3,
           radius / 3,
-          sx,
-          sy,
+          screenX,
+          screenY,
           radius
         );
         shade.addColorStop(0, "#f9fafb");
@@ -301,15 +291,14 @@ const SolarSystemOverlay = ({ open, onClose }: SolarSystemOverlayProps) => {
         shade.addColorStop(1, "#020617");
         ctx.fillStyle = shade;
         ctx.beginPath();
-        ctx.arc(sx, sy, radius, 0, Math.PI * 2);
+        ctx.arc(screenX, screenY, radius, 0, Math.PI * 2);
         ctx.fill();
 
-        // rings for some planets
         if (idx === 1 || idx === 3) {
           ctx.beginPath();
           ctx.ellipse(
-            sx,
-            sy,
+            screenX,
+            screenY,
             radius * 1.4,
             radius * 0.6,
             0.4,
@@ -326,13 +315,63 @@ const SolarSystemOverlay = ({ open, onClose }: SolarSystemOverlayProps) => {
           ctx.fillStyle = "#e5e7eb";
           ctx.textAlign = "center";
           ctx.textBaseline = "bottom";
-          ctx.fillText(p.meta.name, sx, sy - radius - 6);
+          ctx.fillText(p.meta.name, screenX, screenY - radius - 6);
         }
-
-        positions.push({ x: sx, y: sy, r: radius });
       });
 
-      planetPositionsRef.current = positions;
+      // ---- SUN IS ALREADY DRAWN HERE (acts as occluder) ----
+      // (we drew it earlier; that's fine – planets behind are under it)
+
+      // ---- DRAW FRONT PLANETS (in front of sun) ----
+      frontPlanets.forEach(({ screenX, screenY, radius, idx }) => {
+        const p = PLANETS[idx];
+        const isHovered = hoveredIndexRef.current === idx;
+
+        ctx.beginPath();
+        ctx.arc(screenX, screenY, radius + 6, 0, Math.PI * 2);
+        ctx.fillStyle = p.color + "33";
+        ctx.fill();
+
+        const shade = ctx.createRadialGradient(
+          screenX - radius / 3,
+          screenY - radius / 3,
+          radius / 3,
+          screenX,
+          screenY,
+          radius
+        );
+        shade.addColorStop(0, "#f9fafb");
+        shade.addColorStop(0.4, p.color);
+        shade.addColorStop(1, "#020617");
+        ctx.fillStyle = shade;
+        ctx.beginPath();
+        ctx.arc(screenX, screenY, radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (idx === 1 || idx === 3) {
+          ctx.beginPath();
+          ctx.ellipse(
+            screenX,
+            screenY,
+            radius * 1.4,
+            radius * 0.6,
+            0.4,
+            0,
+            Math.PI * 2
+          );
+          ctx.strokeStyle = p.color + "88";
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+
+        if (isHovered) {
+          ctx.font = "10px system-ui, sans-serif";
+          ctx.fillStyle = "#e5e7eb";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "bottom";
+          ctx.fillText(p.meta.name, screenX, screenY - radius - 6);
+        }
+      });
 
       animRef.current = requestAnimationFrame(draw);
     };
@@ -351,7 +390,7 @@ const SolarSystemOverlay = ({ open, onClose }: SolarSystemOverlayProps) => {
     };
   }, [open, onClose, selectedIndex]);
 
-  // Interaction: hover, click, pan, zoom
+  // interactions: hover, click, rotate view, zoom
   useEffect(() => {
     if (!open) return;
     const canvas = canvasRef.current;
@@ -359,15 +398,11 @@ const SolarSystemOverlay = ({ open, onClose }: SolarSystemOverlayProps) => {
 
     const handleMove = (e: MouseEvent) => {
       if (draggingRef.current) {
-        const dx = e.clientX - dragStartRef.current.x;
-        const dy = e.clientY - dragStartRef.current.y;
-        const z = zoomRef.current || 1;
-        const next = {
-          x: camStartRef.current.x - dx / z,
-          y: camStartRef.current.y - dy / z,
-        };
-        cameraRef.current = next;
-        setCamera(next);
+        const dx = e.clientX - dragStartXRef.current;
+        const rotationDelta = dx * 0.004; // drag sensitivity
+        const next = viewRotationStartRef.current + rotationDelta;
+        viewRotationRef.current = next;
+        setViewRotation(next);
         return;
       }
 
@@ -392,8 +427,8 @@ const SolarSystemOverlay = ({ open, onClose }: SolarSystemOverlayProps) => {
 
     const handleDown = (e: MouseEvent) => {
       draggingRef.current = true;
-      dragStartRef.current = { x: e.clientX, y: e.clientY };
-      camStartRef.current = { ...cameraRef.current };
+      dragStartXRef.current = e.clientX;
+      viewRotationStartRef.current = viewRotationRef.current;
     };
 
     const handleUp = () => {
@@ -483,8 +518,8 @@ const SolarSystemOverlay = ({ open, onClose }: SolarSystemOverlayProps) => {
             {activePlanet.detail}
           </p>
           <p className="text-[10px] text-slate-500 mt-3">
-            Hover to freeze a planet. Scroll to zoom. Click &amp; drag to pan
-            around the system.
+            Hover to freeze a planet. Scroll to zoom. Drag left/right to rotate
+            the system (like Google Earth around a star).
           </p>
         </div>
       </div>
