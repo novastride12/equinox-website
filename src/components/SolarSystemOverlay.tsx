@@ -96,13 +96,14 @@ const SolarSystemOverlay = ({ open, onClose }: SolarSystemOverlayProps) => {
     window.addEventListener("resize", resize);
 
     // screen-space stars (constant size regardless of zoom)
-    type Star = { x: number; y: number; tw: number };
+    type Star = { x: number; y: number; z:number;tw: number };
     const stars: Star[] = [];
     const STAR_COUNT = 900;
     for (let i = 0; i < STAR_COUNT; i++) {
       stars.push({
         x: Math.random() * width,
         y: Math.random() * height,
+        z:Math.random(),
         tw: Math.random() * Math.PI * 2,
       });
     }
@@ -135,15 +136,25 @@ const SolarSystemOverlay = ({ open, onClose }: SolarSystemOverlayProps) => {
 
       // ---- STARS: dense, slow, constant size ----
       for (const star of stars) {
-        star.tw += dt * 0.3; // twinkling phase
-        const alpha = 0.3 + 0.4 * Math.abs(Math.sin(star.tw));
-        ctx.globalAlpha = alpha;
-        ctx.beginPath();
-        ctx.arc(star.x, star.y, 1.2, 0, Math.PI * 2);
-        ctx.fillStyle = "#e5e7eb";
-        ctx.fill();
-      }
-      ctx.globalAlpha = 1;
+  // Twinkle phase increases over time
+  star.tw += dt * (0.8 + star.z * 1.5); 
+  // pulse = recurring spike every ~1 second
+  const pulse = Math.sin(star.tw * 6); // faster oscillation
+  // noise = tiny random flicker
+  const noise = (Math.random() - 0.5) * 0.15;
+  // depth = closer stars flicker slightly more
+  const depthInfluence = 0.2 + star.z * 0.5;
+  // combine
+  const alpha = 0.25 + (pulse * 0.35 + noise) * depthInfluence;
+
+  ctx.globalAlpha = Math.max(0.05, Math.min(0.9, alpha));
+
+  ctx.beginPath();
+  ctx.arc(star.x, star.y, 1.2, 0, Math.PI * 2);
+  ctx.fillStyle = "#f1f5f9"; 
+  ctx.fill();
+}
+ctx.globalAlpha = 1;
 
       // ---- EQUINOX STAR (center fixed) ----
       core.pulse += dt * 1.5;
