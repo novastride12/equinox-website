@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import SolarSystemOverlay from "../components/SolarSystemOverlay";
+import SolarSystemOverlay3D from "../components/SolarSystemOverlay3D";
+
 
 const MainLayout = () => {
   const [showSolarSystem, setShowSolarSystem] = useState(false);
@@ -16,7 +17,7 @@ const MainLayout = () => {
         </div>
       </main>
       <Footer />
-      <SolarSystemOverlay
+      <SolarSystemOverlay3D
         open={showSolarSystem}
         onClose={() => setShowSolarSystem(false)}
       />
