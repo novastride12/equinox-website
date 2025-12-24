@@ -6,7 +6,26 @@
   },
   {
     "id": "star-party-1",
-    "title": "Eggsplosation",
+    "title": "Eggsplosation-1",
     "image": "/images/gallery/IMG-20250813-WA0049.jpg"
+  },
+   {
+    "id": "star-party-2",
+    "title": "Eggsplosation-2",
+    "image": "/images/gallery/IMG-20250813-WA0047.jpg"
+  },
+    {
+    "id": "hackathon-1",
+    "title": "hackathon-1",
+    "image": "/images/gallery/_MG_8113_.jpg"
+  },
+   {
+    "id": "hackathon-2",
+    "title":"hackathon-2",
+    "image": "/images/gallery/_MG_8122_.jpg"
+  }, {
+    "id": "hackathon-3",
+    "title": "hackathon-3",
+    "image": "/images/gallery/IMG_8099.jpg"
   }
 ]
