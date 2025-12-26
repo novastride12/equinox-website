@@ -1,25 +1,26 @@
+import { Outlet, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { Outlet } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import ScrollShuttleBackground from "../components/ScrollShuttleBackground";
 import SolarSystemOverlay3D from "../components/SolarSystemOverlay3D";
 
-
 const MainLayout = () => {
-  const [showSolarSystem, setShowSolarSystem] = useState(false);
+  const [openSolar, setOpenSolar] = useState(false);
+  const location = useLocation();
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      <Navbar onLogoClick={() => setShowSolarSystem(true)} />
-      <main className="py-10">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Outlet />
-        </div>
-      </main>
+    <div className="relative">
+      {/* 3D background ONLY on home */}
+      {location.pathname === "/" && <ScrollShuttleBackground />}
+
+      <Navbar onLogoClick={() => setOpenSolar(true)} />
+      <Outlet />
       <Footer />
+
       <SolarSystemOverlay3D
-        open={showSolarSystem}
-        onClose={() => setShowSolarSystem(false)}
+        open={openSolar}
+        onClose={() => setOpenSolar(false)}
       />
     </div>
   );
