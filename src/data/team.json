@@ -1,18 +1,66 @@
 [
   {
-    "id": "president",
+    "id": "head-1",
     "name": "Varun Rathod",
-    "role": "co-President",
-    "bio": "Leads the club and coordinates projects, workshops and collaborations.",
-    "photo": "/images/team/president.jpg",
-    "tags": ["Orbital Dynamics", "Mission Design"]
+    "role": "Head",
+    
+    "photo": "/images/team/president.jpg"
+   
   },
   {
-    "id": "president",
+    "id": "head-2",
     "name": "Dibya Bhalla",
-    "role": "co-President",
-    "bio": "Drives outreach and manages event logistics.",
-    "photo": "/images/team/vice-president.jpg",
-    "tags": ["Outreach", "Systems"]
-  }
+    "role": "Head",
+    
+    "photo": "/images/team/vice-president.jpg"
+    
+  },
+  {
+  "id": "vice-head",
+  "name": "Namritha Lobo",
+  "role": "Vice-Head",
+  "image": "/team/yourname.jpg"
+  },{
+  "id": "tech",
+  "name": "Anika",
+  "role": "Technical",
+  "image": "/team/yourname.jpg"
+},{
+  "id": "tech-2",
+  "name": "Arun Hariharan",
+  "role": "Technical",
+  "image": "/team/yourname.jpg"
+},{
+  "id": "events",
+  "name": "Sakshi Ghodke",
+  "role": "Events-Head",
+  "image": "/team/yourname.jpg"
+},{
+  "id": "logistics",
+  "name": "GSS Surya Prakash",
+  "role": "Logistics",
+  "image": "/team/yourname.jpg"
+},{
+  "id": "ops",
+  "name": "Chethan S",
+  "role": "Operations",
+  "image": "/team/yourname.jpg"
+},{
+  "id": "ops-2",
+  "name": "Hariharan K L",
+  "role": "Operations",
+  "image": "/team/yourname.jpg"
+},{
+  "id": "social media",
+  "name": "Bhargav Rama Sarma",
+  "role": "Social Media",
+  "image": "/team/yourname.jpg"}
+
+
+
+
+
+
+
+
 ]

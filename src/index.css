@@ -2,16 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ===================== GLOBAL RESET ===================== */
+
+html,
 body {
-  @apply bg-slate-950 text-slate-100 font-sans;
+  background-color: #000000;
+  color: #e5e7eb;
 }
 
+#root {
+  background-color: #000000;
+}
+
+/* ===================== BASE TYPOGRAPHY ===================== */
+
 @layer base {
-  h1 {
-    @apply tracking-tight;
+  body {
+    @apply font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply tracking-tight text-[#e5e7eb];
   }
 
   p {
-    @apply leading-relaxed;
+    @apply leading-relaxed text-[#9ca3af];
   }
 }

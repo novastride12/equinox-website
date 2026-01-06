@@ -54,7 +54,8 @@ const Navbar = ({ onLogoClick }: NavbarProps) => {
   }, [location.pathname]);
 
   return (
-    <header className="border-b border-slate-800 bg-slate-950/90 backdrop-blur sticky top-0 z-20">
+    <header className="border-b border-[#0a0a0a] bg-black/90 backdrop-blur sticky top-0 z-20">
+
       <nav className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-6">
         {/* Logo */}
         <button
@@ -76,7 +77,8 @@ const Navbar = ({ onLogoClick }: NavbarProps) => {
             <div className="font-semibold text-sm sm:text-base">
               Equinox
             </div>
-            <div className="text-[11px] text-slate-400">
+            <div className="text-[11px] text-[#9ca3af]">
+
               Space Technology Club
             </div>
           </div>
