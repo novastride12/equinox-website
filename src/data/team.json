@@ -4,7 +4,7 @@
     "name": "Varun Rathod",
     "role": "Head",
     
-    "photo": "/images/team/president.jpg"
+    "photo": "/images/team/varun.png"
    
   },
   {
@@ -12,49 +12,49 @@
     "name": "Dibya Bhalla",
     "role": "Head",
     
-    "photo": "/images/team/vice-president.jpg"
+    "photo": "/images/team/dibya.png"
     
   },
   {
   "id": "vice-head",
   "name": "Namritha Lobo",
   "role": "Vice-Head",
-  "image": "/team/yourname.jpg"
+  "photo": "/images/team/namritha.png"
   },{
   "id": "tech",
   "name": "Anika",
   "role": "Technical",
-  "image": "/team/yourname.jpg"
+  "photo": "/images/team/anika.png"
 },{
   "id": "tech-2",
   "name": "Arun Hariharan",
   "role": "Technical",
-  "image": "/team/yourname.jpg"
+  "photo": "/images/team/arun.png"
 },{
   "id": "events",
   "name": "Sakshi Ghodke",
   "role": "Events-Head",
-  "image": "/team/yourname.jpg"
+  "photo": "/images/team/sakshi.png"
 },{
   "id": "logistics",
   "name": "GSS Surya Prakash",
   "role": "Logistics",
-  "image": "/team/yourname.jpg"
+  "photo": "/images/team/surya.png"
 },{
   "id": "ops",
   "name": "Chethan S",
   "role": "Operations",
-  "image": "/team/yourname.jpg"
+  "photo": "/images/team/chethan.png"
 },{
   "id": "ops-2",
   "name": "Hariharan K L",
   "role": "Operations",
-  "image": "/team/yourname.jpg"
+  "photo": "/images/team/hari.png"
 },{
   "id": "social media",
   "name": "Bhargav Rama Sarma",
   "role": "Social Media",
-  "image": "/team/yourname.jpg"}
+  "photo": "/images/team/bhargav.png"}
 
 
 
